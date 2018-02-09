@@ -1,0 +1,592 @@
+
+WatchDogTimerTest.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000282  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000006  00800060  00000282  00000316  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000005  00800066  00800066  0000031c  2**0
+                  ALLOC
+  3 .debug_aranges 00000020  00000000  00000000  0000031c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_pubnames 000000b7  00000000  00000000  0000033c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000002c1  00000000  00000000  000003f3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 00000178  00000000  00000000  000006b4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   00000375  00000000  00000000  0000082c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000070  00000000  00000000  00000ba4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000168  00000000  00000000  00000c14  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    00000090  00000000  00000000  00000d7c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000090  00000000  00000000  00000e0c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	21 c0       	rjmp	.+66     	; 0x46 <__bad_interrupt>
+   4:	20 c0       	rjmp	.+64     	; 0x46 <__bad_interrupt>
+   6:	1f c0       	rjmp	.+62     	; 0x46 <__bad_interrupt>
+   8:	1e c0       	rjmp	.+60     	; 0x46 <__bad_interrupt>
+   a:	1d c0       	rjmp	.+58     	; 0x46 <__bad_interrupt>
+   c:	1c c0       	rjmp	.+56     	; 0x46 <__bad_interrupt>
+   e:	1b c0       	rjmp	.+54     	; 0x46 <__bad_interrupt>
+  10:	5f c0       	rjmp	.+190    	; 0xd0 <__vector_8>
+  12:	19 c0       	rjmp	.+50     	; 0x46 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_copy_data>:
+  1c:	10 e0       	ldi	r17, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	e2 e8       	ldi	r30, 0x82	; 130
+  24:	f2 e0       	ldi	r31, 0x02	; 2
+  26:	02 c0       	rjmp	.+4      	; 0x2c <.do_copy_data_start>
+
+00000028 <.do_copy_data_loop>:
+  28:	05 90       	lpm	r0, Z+
+  2a:	0d 92       	st	X+, r0
+
+0000002c <.do_copy_data_start>:
+  2c:	a6 36       	cpi	r26, 0x66	; 102
+  2e:	b1 07       	cpc	r27, r17
+  30:	d9 f7       	brne	.-10     	; 0x28 <.do_copy_data_loop>
+
+00000032 <__do_clear_bss>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a6 e6       	ldi	r26, 0x66	; 102
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	01 c0       	rjmp	.+2      	; 0x3c <.do_clear_bss_start>
+
+0000003a <.do_clear_bss_loop>:
+  3a:	1d 92       	st	X+, r1
+
+0000003c <.do_clear_bss_start>:
+  3c:	ab 36       	cpi	r26, 0x6B	; 107
+  3e:	b1 07       	cpc	r27, r17
+  40:	e1 f7       	brne	.-8      	; 0x3a <.do_clear_bss_loop>
+  42:	5a d0       	rcall	.+180    	; 0xf8 <main>
+  44:	1c c1       	rjmp	.+568    	; 0x27e <_exit>
+
+00000046 <__bad_interrupt>:
+  46:	dc cf       	rjmp	.-72     	; 0x0 <__vectors>
+
+00000048 <system_sleep>:
+uint8_t flickerLEDs = 0;
+
+
+// method to put MCU to sleep, deep power saving sleep
+void system_sleep(void){
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  48:	85 b7       	in	r24, 0x35	; 53
+  4a:	87 7e       	andi	r24, 0xE7	; 231
+  4c:	80 61       	ori	r24, 0x10	; 16
+  4e:	85 bf       	out	0x35, r24	; 53
+	sleep_enable();
+  50:	85 b7       	in	r24, 0x35	; 53
+  52:	80 62       	ori	r24, 0x20	; 32
+  54:	85 bf       	out	0x35, r24	; 53
+
+	sleep_mode();
+  56:	85 b7       	in	r24, 0x35	; 53
+  58:	80 62       	ori	r24, 0x20	; 32
+  5a:	85 bf       	out	0x35, r24	; 53
+  5c:	88 95       	sleep
+  5e:	85 b7       	in	r24, 0x35	; 53
+  60:	8f 7d       	andi	r24, 0xDF	; 223
+  62:	85 bf       	out	0x35, r24	; 53
+
+	// system continues execution here when watchdog times out
+	sleep_disable();
+  64:	85 b7       	in	r24, 0x35	; 53
+  66:	8f 7d       	andi	r24, 0xDF	; 223
+  68:	85 bf       	out	0x35, r24	; 53
+}
+  6a:	08 95       	ret
+
+0000006c <setup_watchdog>:
+
+// method to configure WDT
+void setup_watchdog(void) {  
+
+  MCUSR &= ~(1<<WDRF);	// reset WDT
+  6c:	84 b7       	in	r24, 0x34	; 52
+  6e:	87 7f       	andi	r24, 0xF7	; 247
+  70:	84 bf       	out	0x34, r24	; 52
+  WDTCR |= (1<<WDCE) | (1<<WDE); // set the change enable bit and enable bit
+  72:	81 b5       	in	r24, 0x21	; 33
+  74:	88 61       	ori	r24, 0x18	; 24
+  76:	81 bd       	out	0x21, r24	; 33
+  WDTCR |= (1<<WDP3) | (1<<WDP0) | (1<<WDTIE);	// set the interrupt bit and set timeout to ~8 seconds (1024 cycles)
+  78:	81 b5       	in	r24, 0x21	; 33
+  7a:	81 66       	ori	r24, 0x61	; 97
+  7c:	81 bd       	out	0x21, r24	; 33
+  sei();	// enable global interrupts
+  7e:	78 94       	sei
+}
+  80:	08 95       	ret
+
+00000082 <ADC_read>:
+	int i;
+	int ADC_temp;
+	
+	int ADCr = 0;
+	
+	ADCSRA = (1<<ADEN); // enable the ADC
+  82:	80 e8       	ldi	r24, 0x80	; 128
+  84:	86 b9       	out	0x06, r24	; 6
+	
+	//do a dummy readout first
+	ADCSRA |= (1<<ADSC); // do single conversion
+  86:	36 9a       	sbi	0x06, 6	; 6
+	
+	// wait for conversion done, ADIF flag active
+	while(!(ADCSRA & 0x10));
+  88:	34 9b       	sbis	0x06, 4	; 6
+  8a:	fe cf       	rjmp	.-4      	; 0x88 <ADC_read+0x6>
+  8c:	60 e0       	ldi	r22, 0x00	; 0
+  8e:	70 e0       	ldi	r23, 0x00	; 0
+  90:	20 e0       	ldi	r18, 0x00	; 0
+  92:	30 e0       	ldi	r19, 0x00	; 0
+	
+	// do the ADC conversion 8 times for better accuracy
+	for(i=0;i<8;i++)
+	{
+		ADCSRA |= (1<<ADSC); // do single conversion
+  94:	36 9a       	sbi	0x06, 6	; 6
+		// wait for conversion done, ADIF flag active
+		while(!(ADCSRA & 0x10));
+  96:	34 9b       	sbis	0x06, 4	; 6
+  98:	fe cf       	rjmp	.-4      	; 0x96 <ADC_read+0x14>
+
+		ADC_temp = ADCL; // read out ADCL register
+  9a:	94 b1       	in	r25, 0x04	; 4
+	
+		ADC_temp += (ADCH << 8); // read out ADCH register
+  9c:	85 b1       	in	r24, 0x05	; 5
+	
+		// accumulate result (8 samples) for later averaging
+		ADCr += ADC_temp;
+  9e:	58 2f       	mov	r21, r24
+  a0:	40 e0       	ldi	r20, 0x00	; 0
+  a2:	fa 01       	movw	r30, r20
+  a4:	e9 0f       	add	r30, r25
+  a6:	f1 1d       	adc	r31, r1
+  a8:	2e 0f       	add	r18, r30
+  aa:	3f 1f       	adc	r19, r31
+	
+	// wait for conversion done, ADIF flag active
+	while(!(ADCSRA & 0x10));
+	
+	// do the ADC conversion 8 times for better accuracy
+	for(i=0;i<8;i++)
+  ac:	6f 5f       	subi	r22, 0xFF	; 255
+  ae:	7f 4f       	sbci	r23, 0xFF	; 255
+  b0:	68 30       	cpi	r22, 0x08	; 8
+  b2:	71 05       	cpc	r23, r1
+  b4:	79 f7       	brne	.-34     	; 0x94 <ADC_read+0x12>
+		// accumulate result (8 samples) for later averaging
+		ADCr += ADC_temp;
+	}
+
+	ADCr = ADCr >> 3; // average the 8 samples
+	ADCSRA = (0<<ADEN); // disable the ADC
+  b6:	16 b8       	out	0x06, r1	; 6
+  b8:	83 e0       	ldi	r24, 0x03	; 3
+  ba:	35 95       	asr	r19
+  bc:	27 95       	ror	r18
+  be:	8a 95       	dec	r24
+  c0:	e1 f7       	brne	.-8      	; 0xba <__stack+0x1b>
+
+	return ADCr;
+}
+  c2:	c9 01       	movw	r24, r18
+  c4:	08 95       	ret
+
+000000c6 <ADC_init>:
+
+// setup ADC, we'll stop and stop with each read sacrificing performance as the inital read
+// is very slow
+void ADC_init(void){
+	ADMUX = (1<<MUX1); // set PB4 as input
+  c6:	82 e0       	ldi	r24, 0x02	; 2
+  c8:	87 b9       	out	0x07, r24	; 7
+	ADCSRA = (1<<ADPS1)| (1<<ADPS0); // set adc to divide by 8 600Khz / 8 = 75khz
+  ca:	83 e0       	ldi	r24, 0x03	; 3
+  cc:	86 b9       	out	0x06, r24	; 6
+}
+  ce:	08 95       	ret
+
+000000d0 <__vector_8>:
+
+
+// interrupt method for WDT timeout
+ISR(WDT_vect){
+  d0:	1f 92       	push	r1
+  d2:	0f 92       	push	r0
+  d4:	0f b6       	in	r0, 0x3f	; 63
+  d6:	0f 92       	push	r0
+  d8:	11 24       	eor	r1, r1
+  da:	8f 93       	push	r24
+  dc:	9f 93       	push	r25
+
+	f_wdt = 1;
+  de:	81 e0       	ldi	r24, 0x01	; 1
+  e0:	90 e0       	ldi	r25, 0x00	; 0
+  e2:	90 93 61 00 	sts	0x0061, r25
+  e6:	80 93 60 00 	sts	0x0060, r24
+}
+  ea:	9f 91       	pop	r25
+  ec:	8f 91       	pop	r24
+  ee:	0f 90       	pop	r0
+  f0:	0f be       	out	0x3f, r0	; 63
+  f2:	0f 90       	pop	r0
+  f4:	1f 90       	pop	r1
+  f6:	18 95       	reti
+
+000000f8 <main>:
+
+
+// main system method, processes fake fire and handles ADC/WDT logic
+int main(void){
+  f8:	af 92       	push	r10
+  fa:	bf 92       	push	r11
+  fc:	cf 92       	push	r12
+  fe:	df 92       	push	r13
+ 100:	ef 92       	push	r14
+ 102:	ff 92       	push	r15
+ 104:	0f 93       	push	r16
+ 106:	1f 93       	push	r17
+ 108:	cf 93       	push	r28
+ 10a:	df 93       	push	r29
+
+	MCUCR = (1<<SE) | (1<<SM1);	// setup sleep mode to deep sleep or PWR_SAVE mode
+ 10c:	80 e3       	ldi	r24, 0x30	; 48
+ 10e:	85 bf       	out	0x35, r24	; 53
+}
+
+// method to configure WDT
+void setup_watchdog(void) {  
+
+  MCUSR &= ~(1<<WDRF);	// reset WDT
+ 110:	84 b7       	in	r24, 0x34	; 52
+ 112:	87 7f       	andi	r24, 0xF7	; 247
+ 114:	84 bf       	out	0x34, r24	; 52
+  WDTCR |= (1<<WDCE) | (1<<WDE); // set the change enable bit and enable bit
+ 116:	81 b5       	in	r24, 0x21	; 33
+ 118:	88 61       	ori	r24, 0x18	; 24
+ 11a:	81 bd       	out	0x21, r24	; 33
+  WDTCR |= (1<<WDP3) | (1<<WDP0) | (1<<WDTIE);	// set the interrupt bit and set timeout to ~8 seconds (1024 cycles)
+ 11c:	81 b5       	in	r24, 0x21	; 33
+ 11e:	81 66       	ori	r24, 0x61	; 97
+ 120:	81 bd       	out	0x21, r24	; 33
+  sei();	// enable global interrupts
+ 122:	78 94       	sei
+}
+
+// setup ADC, we'll stop and stop with each read sacrificing performance as the inital read
+// is very slow
+void ADC_init(void){
+	ADMUX = (1<<MUX1); // set PB4 as input
+ 124:	82 e0       	ldi	r24, 0x02	; 2
+ 126:	a8 2e       	mov	r10, r24
+	ADCSRA = (1<<ADPS1)| (1<<ADPS0); // set adc to divide by 8 600Khz / 8 = 75khz
+ 128:	03 e0       	ldi	r16, 0x03	; 3
+ 12a:	b0 2e       	mov	r11, r16
+
+			ADC_init();
+			adcValue = ADC_read(); // read photocell
+			if((adcValue) < PHOTO_VALUE){
+			// dark out
+				flickerLEDs = 1;
+ 12c:	cc 24       	eor	r12, r12
+ 12e:	c3 94       	inc	r12
+		
+		// if it's dark, keep flickering the LEDs
+		if(flickerLEDs == 1){	
+		
+			// enable output pins
+			DDRB = (1<<LED_ORANGE1) | (1<<LED_ORANGE2) | (1<<LED_RED1) | (1<<LED_RED2);
+ 130:	1f e0       	ldi	r17, 0x0F	; 15
+ 132:	d1 2e       	mov	r13, r17
+
+// as the name inplies, pseudo random number generator
+static uint16_t pseudorandom16(void){
+
+	uint16_t newbit = 0;
+	if (randreg == 0) {
+ 134:	c1 e0       	ldi	r28, 0x01	; 1
+ 136:	d0 e0       	ldi	r29, 0x00	; 0
+    milliseconds can be achieved.
+ */
+void
+_delay_loop_2(uint16_t __count)
+{
+	__asm__ volatile (
+ 138:	b4 e8       	ldi	r27, 0x84	; 132
+ 13a:	eb 2e       	mov	r14, r27
+ 13c:	b3 e0       	ldi	r27, 0x03	; 3
+ 13e:	fb 2e       	mov	r15, r27
+			DDRB = (1<<LED_ORANGE1) | (1<<LED_ORANGE2) | (1<<LED_RED1) | (1<<LED_RED2);
+			
+			j = pseudorandom16();
+			for(i=0;i<4;i++){
+				if(pseudorandom16() > j){
+					PORTB ^= (1<<i);
+ 140:	01 e0       	ldi	r16, 0x01	; 1
+ 142:	10 e0       	ldi	r17, 0x00	; 0
+    
+	setup_watchdog();
+
+	while(1){
+		// read photocell to see if it's dark out still or not
+		if(f_wdt==1){
+ 144:	80 91 60 00 	lds	r24, 0x0060
+ 148:	90 91 61 00 	lds	r25, 0x0061
+ 14c:	01 97       	sbiw	r24, 0x01	; 1
+ 14e:	91 f4       	brne	.+36     	; 0x174 <main+0x7c>
+}
+
+// setup ADC, we'll stop and stop with each read sacrificing performance as the inital read
+// is very slow
+void ADC_init(void){
+	ADMUX = (1<<MUX1); // set PB4 as input
+ 150:	a7 b8       	out	0x07, r10	; 7
+	ADCSRA = (1<<ADPS1)| (1<<ADPS0); // set adc to divide by 8 600Khz / 8 = 75khz
+ 152:	b6 b8       	out	0x06, r11	; 6
+	while(1){
+		// read photocell to see if it's dark out still or not
+		if(f_wdt==1){
+
+			ADC_init();
+			adcValue = ADC_read(); // read photocell
+ 154:	96 df       	rcall	.-212    	; 0x82 <ADC_read>
+ 156:	80 93 66 00 	sts	0x0066, r24
+			if((adcValue) < PHOTO_VALUE){
+ 15a:	90 91 64 00 	lds	r25, 0x0064
+ 15e:	89 17       	cp	r24, r25
+ 160:	18 f4       	brcc	.+6      	; 0x168 <main+0x70>
+			// dark out
+				flickerLEDs = 1;
+ 162:	c0 92 6a 00 	sts	0x006A, r12
+ 166:	02 c0       	rjmp	.+4      	; 0x16c <main+0x74>
+			}else{
+				flickerLEDs = 0;
+ 168:	10 92 6a 00 	sts	0x006A, r1
+			}
+
+			f_wdt=0;	// reset wdt variable
+ 16c:	10 92 61 00 	sts	0x0061, r1
+ 170:	10 92 60 00 	sts	0x0060, r1
+		}
+		
+		// if it's dark, keep flickering the LEDs
+		if(flickerLEDs == 1){	
+ 174:	80 91 6a 00 	lds	r24, 0x006A
+ 178:	81 30       	cpi	r24, 0x01	; 1
+ 17a:	09 f0       	breq	.+2      	; 0x17e <main+0x86>
+ 17c:	6c c0       	rjmp	.+216    	; 0x256 <main+0x15e>
+		
+			// enable output pins
+			DDRB = (1<<LED_ORANGE1) | (1<<LED_ORANGE2) | (1<<LED_RED1) | (1<<LED_RED2);
+ 17e:	d7 ba       	out	0x17, r13	; 23
+
+// as the name inplies, pseudo random number generator
+static uint16_t pseudorandom16(void){
+
+	uint16_t newbit = 0;
+	if (randreg == 0) {
+ 180:	80 91 62 00 	lds	r24, 0x0062
+ 184:	90 91 63 00 	lds	r25, 0x0063
+ 188:	89 2b       	or	r24, r25
+ 18a:	21 f4       	brne	.+8      	; 0x194 <main+0x9c>
+		randreg = 1;
+ 18c:	10 93 63 00 	sts	0x0063, r17
+ 190:	00 93 62 00 	sts	0x0062, r16
+	}
+	  if (randreg & 0x8000) newbit = 1;
+ 194:	20 91 62 00 	lds	r18, 0x0062
+ 198:	30 91 63 00 	lds	r19, 0x0063
+ 19c:	83 2f       	mov	r24, r19
+ 19e:	99 27       	eor	r25, r25
+ 1a0:	87 fd       	sbrc	r24, 7
+ 1a2:	90 95       	com	r25
+ 1a4:	88 27       	eor	r24, r24
+ 1a6:	99 0f       	add	r25, r25
+ 1a8:	88 1f       	adc	r24, r24
+ 1aa:	99 27       	eor	r25, r25
+	  if (randreg & 0x4000) newbit ^= 1;
+ 1ac:	36 ff       	sbrs	r19, 6
+ 1ae:	02 c0       	rjmp	.+4      	; 0x1b4 <main+0xbc>
+ 1b0:	8c 27       	eor	r24, r28
+ 1b2:	9d 27       	eor	r25, r29
+	  if (randreg & 0x1000) newbit ^= 1; 
+ 1b4:	34 ff       	sbrs	r19, 4
+ 1b6:	02 c0       	rjmp	.+4      	; 0x1bc <main+0xc4>
+ 1b8:	8c 27       	eor	r24, r28
+ 1ba:	9d 27       	eor	r25, r29
+	  if (randreg & 0x0008) newbit ^= 1;
+ 1bc:	23 ff       	sbrs	r18, 3
+ 1be:	02 c0       	rjmp	.+4      	; 0x1c4 <main+0xcc>
+ 1c0:	8c 27       	eor	r24, r28
+ 1c2:	9d 27       	eor	r25, r29
+	 
+	  randreg = (randreg << 1) + newbit;
+ 1c4:	b9 01       	movw	r22, r18
+ 1c6:	66 0f       	add	r22, r22
+ 1c8:	77 1f       	adc	r23, r23
+ 1ca:	68 0f       	add	r22, r24
+ 1cc:	79 1f       	adc	r23, r25
+ 1ce:	70 93 63 00 	sts	0x0063, r23
+ 1d2:	60 93 62 00 	sts	0x0062, r22
+		if(flickerLEDs == 1){	
+		
+			// enable output pins
+			DDRB = (1<<LED_ORANGE1) | (1<<LED_ORANGE2) | (1<<LED_RED1) | (1<<LED_RED2);
+			
+			j = pseudorandom16();
+ 1d6:	70 93 69 00 	sts	0x0069, r23
+ 1da:	60 93 68 00 	sts	0x0068, r22
+			for(i=0;i<4;i++){
+ 1de:	10 92 67 00 	sts	0x0067, r1
+ 1e2:	ab 01       	movw	r20, r22
+ 1e4:	30 e0       	ldi	r19, 0x00	; 0
+ 1e6:	2b c0       	rjmp	.+86     	; 0x23e <main+0x146>
+
+// as the name inplies, pseudo random number generator
+static uint16_t pseudorandom16(void){
+
+	uint16_t newbit = 0;
+	if (randreg == 0) {
+ 1e8:	41 15       	cp	r20, r1
+ 1ea:	51 05       	cpc	r21, r1
+ 1ec:	11 f4       	brne	.+4      	; 0x1f2 <main+0xfa>
+ 1ee:	41 e0       	ldi	r20, 0x01	; 1
+ 1f0:	50 e0       	ldi	r21, 0x00	; 0
+ 1f2:	85 2f       	mov	r24, r21
+ 1f4:	99 27       	eor	r25, r25
+ 1f6:	87 fd       	sbrc	r24, 7
+ 1f8:	90 95       	com	r25
+ 1fa:	88 27       	eor	r24, r24
+ 1fc:	99 0f       	add	r25, r25
+ 1fe:	88 1f       	adc	r24, r24
+ 200:	99 27       	eor	r25, r25
+		randreg = 1;
+	}
+	  if (randreg & 0x8000) newbit = 1;
+	  if (randreg & 0x4000) newbit ^= 1;
+ 202:	56 ff       	sbrs	r21, 6
+ 204:	02 c0       	rjmp	.+4      	; 0x20a <main+0x112>
+ 206:	8c 27       	eor	r24, r28
+ 208:	9d 27       	eor	r25, r29
+	  if (randreg & 0x1000) newbit ^= 1; 
+ 20a:	54 ff       	sbrs	r21, 4
+ 20c:	02 c0       	rjmp	.+4      	; 0x212 <main+0x11a>
+ 20e:	8c 27       	eor	r24, r28
+ 210:	9d 27       	eor	r25, r29
+	  if (randreg & 0x0008) newbit ^= 1;
+ 212:	43 ff       	sbrs	r20, 3
+ 214:	02 c0       	rjmp	.+4      	; 0x21a <main+0x122>
+ 216:	8c 27       	eor	r24, r28
+ 218:	9d 27       	eor	r25, r29
+	 
+	  randreg = (randreg << 1) + newbit;
+ 21a:	44 0f       	add	r20, r20
+ 21c:	55 1f       	adc	r21, r21
+ 21e:	48 0f       	add	r20, r24
+ 220:	59 1f       	adc	r21, r25
+			// enable output pins
+			DDRB = (1<<LED_ORANGE1) | (1<<LED_ORANGE2) | (1<<LED_RED1) | (1<<LED_RED2);
+			
+			j = pseudorandom16();
+			for(i=0;i<4;i++){
+				if(pseudorandom16() > j){
+ 222:	64 17       	cp	r22, r20
+ 224:	75 07       	cpc	r23, r21
+ 226:	50 f4       	brcc	.+20     	; 0x23c <main+0x144>
+					PORTB ^= (1<<i);
+ 228:	28 b3       	in	r18, 0x18	; 24
+ 22a:	ce 01       	movw	r24, r28
+ 22c:	03 2e       	mov	r0, r19
+ 22e:	02 c0       	rjmp	.+4      	; 0x234 <main+0x13c>
+ 230:	88 0f       	add	r24, r24
+ 232:	99 1f       	adc	r25, r25
+ 234:	0a 94       	dec	r0
+ 236:	e2 f7       	brpl	.-8      	; 0x230 <main+0x138>
+ 238:	28 27       	eor	r18, r24
+ 23a:	28 bb       	out	0x18, r18	; 24
+ 23c:	3f 5f       	subi	r19, 0xFF	; 255
+		
+			// enable output pins
+			DDRB = (1<<LED_ORANGE1) | (1<<LED_ORANGE2) | (1<<LED_RED1) | (1<<LED_RED2);
+			
+			j = pseudorandom16();
+			for(i=0;i<4;i++){
+ 23e:	34 30       	cpi	r19, 0x04	; 4
+ 240:	98 f2       	brcs	.-90     	; 0x1e8 <main+0xf0>
+ 242:	50 93 63 00 	sts	0x0063, r21
+ 246:	40 93 62 00 	sts	0x0062, r20
+ 24a:	30 93 67 00 	sts	0x0067, r19
+ 24e:	c7 01       	movw	r24, r14
+ 250:	01 97       	sbiw	r24, 0x01	; 1
+ 252:	f1 f7       	brne	.-4      	; 0x250 <main+0x158>
+ 254:	77 cf       	rjmp	.-274    	; 0x144 <main+0x4c>
+			    }
+			}
+			_delay_ms(6); 
+		}else{ 
+
+			PORTB = 0x00; 	// set all pins low then set them as input to save power
+ 256:	18 ba       	out	0x18, r1	; 24
+
+			DDRB = 0x00;	// set all pins as input to save power
+ 258:	17 ba       	out	0x17, r1	; 23
+uint8_t flickerLEDs = 0;
+
+
+// method to put MCU to sleep, deep power saving sleep
+void system_sleep(void){
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+ 25a:	85 b7       	in	r24, 0x35	; 53
+ 25c:	87 7e       	andi	r24, 0xE7	; 231
+ 25e:	80 61       	ori	r24, 0x10	; 16
+ 260:	85 bf       	out	0x35, r24	; 53
+	sleep_enable();
+ 262:	85 b7       	in	r24, 0x35	; 53
+ 264:	80 62       	ori	r24, 0x20	; 32
+ 266:	85 bf       	out	0x35, r24	; 53
+
+	sleep_mode();
+ 268:	85 b7       	in	r24, 0x35	; 53
+ 26a:	80 62       	ori	r24, 0x20	; 32
+ 26c:	85 bf       	out	0x35, r24	; 53
+ 26e:	88 95       	sleep
+ 270:	85 b7       	in	r24, 0x35	; 53
+ 272:	8f 7d       	andi	r24, 0xDF	; 223
+ 274:	85 bf       	out	0x35, r24	; 53
+
+	// system continues execution here when watchdog times out
+	sleep_disable();
+ 276:	85 b7       	in	r24, 0x35	; 53
+ 278:	8f 7d       	andi	r24, 0xDF	; 223
+ 27a:	85 bf       	out	0x35, r24	; 53
+ 27c:	63 cf       	rjmp	.-314    	; 0x144 <main+0x4c>
+
+0000027e <_exit>:
+ 27e:	f8 94       	cli
+
+00000280 <__stop_program>:
+ 280:	ff cf       	rjmp	.-2      	; 0x280 <__stop_program>
